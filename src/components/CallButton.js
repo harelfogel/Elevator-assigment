@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
+import { ElevatorContext } from '../contexts/ElevatorContext';
 import '../styles/styles.css';
 
 export const CallButton = ({ floor }) => {
+  const [isWaiting, setIsWaiting] = useState(false);
+  const {callElevator}= useContext(ElevatorContext);
+
+
   const handleClick = () => {
-    // Implement your logic for handling button clicks here
-    console.log(`Call elevator to floor ${floor + 1}`);
+    setIsWaiting(true);
+    callElevator(floor);
   };
 
   return (
-    <button onClick={handleClick} className="call-button">
-      Call
+    <button
+      className={`call-button ${isWaiting ? 'waiting' : ''}`}
+      onClick={handleClick}
+    >
+      {isWaiting ? 'Waiting' : 'Call'}
     </button>
   );
 };

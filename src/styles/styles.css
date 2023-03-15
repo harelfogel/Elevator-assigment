@@ -46,6 +46,7 @@
     align-items: center;
     grid-row: span 1;
     grid-column: span 1;
+    transition: transform 2s ease;
   }
 
   .elevator-icon {
@@ -68,4 +69,12 @@
     padding: 0.38rem 1.1rem;
     cursor: pointer;
     margin-bottom: 1.6rem;
+  }
+
+  .call-button.waiting {
+    background-color: red;
+    color: white;
+    padding: 0.38rem 1.1rem;
+    border-radius: 0.2rem;
+    cursor: pointer;
   }
