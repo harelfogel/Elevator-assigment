@@ -69,3 +69,11 @@
     cursor: pointer;
     margin-bottom: 1.6rem;
   }
+
+  .call-button.waiting {
+    background-color: red;
+    color: white;
+    padding: 0.38rem 1.1rem;
+    border-radius: 0.2rem;
+    cursor: pointer;
+  }
