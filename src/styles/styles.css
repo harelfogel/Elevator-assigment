@@ -1,0 +1,71 @@
+.building-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  .building {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    grid-column-gap: 1px;
+    grid-row-gap: 1px;
+    margin-right: 0.9rem;
+    background-color: rgb(215, 215, 215);
+    margin-bottom: 1.9rem;
+    border-radius: 4rem;
+    width: 29rem;
+  }
+  
+  .floor {
+    display: contents;
+  }
+
+  .floor-labels {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    margin-right: 1rem;
+  }
+  
+  .floor-label {
+    height: 53px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 1px;
+    font-weight: bold;
+  }
+
+  .elevator {
+    width: 100%;
+    height: 53px;
+    background-color: rgb(246, 245, 245);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    grid-row: span 1;
+    grid-column: span 1;
+  }
+
+  .elevator-icon {
+    width: 30px;
+    height: auto;
+  }
+  
+  .call-buttons {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    margin-top:0.9rem;
+  }
+  
+  .call-button {
+    background-color: rgb(38, 201, 106);
+    color: white;
+    border: none;
+    border-radius: 0.2rem;
+    padding: 0.38rem 1.1rem;
+    cursor: pointer;
+    margin-bottom: 1.6rem;
+  }
