@@ -13,10 +13,12 @@ export const Building = () => {
     Array.from({ length: elevators }, () => 0)
   );
   const [elevatorRequests, setElevatorRequests] = useState([]);
+  const [elevatorDestinations, setElevatorDestinations] = useState(Array.from({ length: elevators }, () => null));
 
-  const [elevatorLocations, setElevatorLocations] = useState(
-    Array.from({ length: elevators }, () => 0)
-  );
+
+  // const [elevatorLocations, setElevatorLocations] = useState(
+  //   Array.from({ length: elevators }, () => 0)
+  // );
 
   const findClosestAvailableElevator = (floor) => {
     let minDistance = Infinity;
@@ -34,27 +36,41 @@ export const Building = () => {
   };
 
   const moveElevator = (elevator, targetFloor) => {
-    const targetPosition =  targetFloor;
-  
+    const targetPosition = targetFloor;
+
     const intervalId = setInterval(() => {
       setElevatorPositions((prevPositions) => {
         const currentPosition = prevPositions[elevator];
-  
+
         if (currentPosition === targetPosition) {
           clearInterval(intervalId);
+          // Remove the elevator request when it reaches the target floor
+          setElevatorRequests((prevRequests) =>
+            prevRequests.filter((request) => request.elevator !== elevator)
+          );
+
+          // Update elevatorDestinations when the elevator reaches the target floor
+          setElevatorDestinations((prevDestinations) => {
+            const newDestinations = [...prevDestinations];
+            newDestinations[elevator] = targetFloor;
+            return newDestinations;
+          });
+
           return prevPositions;
         }
-  
+
         const newPosition = currentPosition + (targetPosition > currentPosition ? 1 : -1);
         const newPositions = [...prevPositions];
         newPositions[elevator] = newPosition;
         console.log(`The new Positions array is ${newPositions}`);
-  
+
         return newPositions;
       });
     }, 1000);
   };
-  
+
+
+
 
   const callElevator = (floor) => {
     const availableElevator = findClosestAvailableElevator(floor);
@@ -82,7 +98,13 @@ export const Building = () => {
       </div>
       <div className="building">
         {floors.map((_, floor) => (
-          <Floor key={floor} floor={floor} elevators={elevators} elevatorPositions={elevatorPositions} />
+          <Floor
+            key={floor}
+            floor={floor}
+            elevators={elevators}
+            elevatorPositions={elevatorPositions}
+            elevatorRequests={elevatorRequests}
+          />
         ))}
       </div>
       {/* <div className="call-buttons">
@@ -98,7 +120,8 @@ export const Building = () => {
       </div> */}
       <div className="call-buttons">
         {floors.map((_, floor) => (
-          <CallButton key={floor} floor={floor} onCallClick={callElevator} buttonState={buttonStates[floor]} onButtonStateChange={(newState) => onButtonStateChange(floor, newState)} />
+          <CallButton key={floor} floor={floor} onCallClick={callElevator} elevatorPositions={elevatorPositions} elevatorDestinations={elevatorDestinations}
+            buttonState={buttonStates[floor]} onButtonStateChange={(newState) => onButtonStateChange(floor, newState)} />
         ))}
       </div>
     </div>

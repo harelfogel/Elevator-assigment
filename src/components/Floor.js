@@ -4,12 +4,18 @@ import { Elevator } from './Elevator';
 import { ElevatorIcon } from './ElevatorIcon';
 import '../styles/styles.css';
 
-export const Floor = ({ floor, elevators, elevatorPositions }) => {
+export const Floor = ({ floor, elevators, elevatorPositions, elevatorRequests }) => {
+  const isElevatorOccupied = (elevator) => {
+    return elevatorRequests.some((req) => req.elevator === elevator);
+  };
+
   return (
     <div className="floor">
       {Array.from({ length: elevators }, (_, elevator) => (
         <Elevator key={elevator} elevator={elevator}>
-          {9 - floor === elevatorPositions[elevator] && <ElevatorIcon />}
+          {9 - floor === elevatorPositions[elevator] && (
+            <ElevatorIcon isOccupied={isElevatorOccupied(elevator)} />
+          )}
         </Elevator>
       ))}
     </div>
