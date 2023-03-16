@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
+// CallButton.js
+import React, { useEffect, useState } from 'react';
 import '../styles/styles.css';
 
-export const CallButton = ({ floor,onElevatorCall  }) => {
-  const [isWaiting, setIsWaiting] = useState(false);
+export const CallButton = ({ floor, onCallClick }) => {
+  const [buttonState, setButtonState] = useState('idle');
 
   const handleClick = () => {
-    setIsWaiting(true);
-    onElevatorCall(floor);
-    console.log(`Call elevator to floor ${floor + 1}`);
+    if (buttonState === 'idle') {
+      setButtonState('waiting');
+      onCallClick(floor, () => setButtonState('arrived'));
+    }
   };
 
-  const buttonClass = isWaiting ? 'call-button waiting' : 'call-button';
+  useEffect(() => {
+    if (buttonState === 'arrived') {
+      setTimeout(() => setButtonState('idle'), 3000);
+    }
+  }, [buttonState]);
+
+  const buttonLabel = buttonState === 'idle' ? 'Call' : buttonState === 'waiting' ? 'Waiting' : 'Arrived';
+  const buttonClass = `call-button ${buttonState}`;
 
   return (
     <button onClick={handleClick} className={buttonClass}>
-      {isWaiting ? 'Waiting' : 'Call'}
+      {buttonLabel}
     </button>
   );
 };

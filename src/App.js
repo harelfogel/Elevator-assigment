@@ -6,7 +6,7 @@ function App() {
   return (
     <div className="App">
         <h1 className="app-title">Elevator System</h1>
-        <Building />
+        <Building/>
     </div>
   );
 }
