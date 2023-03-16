@@ -80,7 +80,7 @@
     color: rgb(38, 201, 106);
   }
 
-  /* styles.css */
+  styles.css
 .arrived {
   background-color: white;
   color: green;
@@ -104,3 +104,9 @@
 .elevator-icon.occupied svg path {
   stroke: red;
 }
+
+.elevator-icon.arrived svg path {
+  stroke: green;
+}
+
+
