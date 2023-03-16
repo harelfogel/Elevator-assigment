@@ -48,11 +48,6 @@
     grid-column: span 1;
   }
 
-  .elevator-icon {
-    width: 30px;
-    height: auto;
-  }
-  
   .call-buttons {
     display: flex;
     flex-direction: column-reverse;
@@ -65,7 +60,7 @@
     color: white;
     border: none;
     border-radius: 0.2rem;
-    padding: 0.38rem 1.1rem;
+    padding: 0.38rem 1.67rem;
     cursor: pointer;
     margin-bottom: 1.6rem;
   }
@@ -90,4 +85,22 @@
   background-color: white;
   color: green;
   border: 2px solid green;
+}
+
+.elevator-icon {
+  width: 30px;
+  height: auto;
+}
+
+.elevator-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.elevator-icon svg path {
+  stroke: #000; /* Default color */
+}
+
+.elevator-icon.occupied svg path {
+  stroke: red;
 }
