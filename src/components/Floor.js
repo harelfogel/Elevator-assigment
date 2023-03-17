@@ -1,4 +1,5 @@
 // Floor.js
+
 import React from 'react';
 import { Elevator } from './Elevator';
 import { ElevatorIcon } from './ElevatorIcon';
@@ -10,12 +11,16 @@ export const Floor = ({
   elevatorPositions,
   elevatorRequests,
   buttonStates,
-  onButtonStateChange,
+  elevatorTimeTaken,
 }) => {
   const isElevatorOccupied = (elevator) => {
     return elevatorRequests.some((req) => req.elevator === elevator);
   };
 
+  const isDestinationFloor = (elevator) => {
+    const request = elevatorRequests.find((req) => req.elevator === elevator);
+    return request && 9 - floor === request.floor;
+  };
   return (
     <div className="floor">
       {Array.from({ length: elevators }, (_, elevator) => (
@@ -26,6 +31,9 @@ export const Floor = ({
               buttonStates={buttonStates}
               currentFloor={9 - floor}
             />
+          )}
+          {isDestinationFloor(elevator) && (
+            <div className="elapsed-time">{elevatorTimeTaken[elevator]}sec</div>
           )}
         </Elevator>
       ))}

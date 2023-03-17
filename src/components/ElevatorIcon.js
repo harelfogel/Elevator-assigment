@@ -3,10 +3,8 @@ import React from 'react';
 import { elevatorIconString } from '../assets/icons8-elevator-string';
 import '../styles/styles.css';
 
-export const ElevatorIcon = ({ isOccupied, buttonStates, currentFloor }) => {
+export const ElevatorIcon = ({ isOccupied, buttonStates, currentFloor,elevatorTimeTaken }) => {
   let className = 'elevator-icon';
-  console.log(buttonStates);
-  console.log(currentFloor)
   const isArrived = buttonStates[currentFloor] === 'arrived';
 
   if (isOccupied) {

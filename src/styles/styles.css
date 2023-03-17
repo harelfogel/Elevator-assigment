@@ -78,6 +78,7 @@
     background-color: white;
     padding: 0.38rem 1.1rem;
     color: rgb(38, 201, 106);
+    border: 2px solid green;
   }
 
   styles.css
@@ -108,5 +109,20 @@
 .elevator-icon.arrived svg path {
   stroke: green;
 }
+
+.elevator-slot {
+  position: relative;
+}
+
+.elapsed-time {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 
 
