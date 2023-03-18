@@ -1,8 +1,6 @@
 export const formatTime = (time) => {
   if (time === null || time === undefined) {
-    return 'lili';
   }
-
   return `${time}sec`;
 };
 

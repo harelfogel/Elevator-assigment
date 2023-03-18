@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Floor } from './Floor';
 import { FloorLabel } from './FloorLabel';
 import { CallButton } from './CallButton';
@@ -134,40 +134,44 @@ export const Building = () => {
   };
 
 
-
-
-
   const callElevator = (floor) => {
-    const availableElevatorIndex = findClosestAvailableElevator(floor);
-
-    if (availableElevatorIndex !== null) {
-      setElevatorData((prevData) => {
-        const newData = [...prevData];
-        newData[availableElevatorIndex].requests.push({ elevator: availableElevatorIndex, floor });
-        return newData;
-      });
-      moveElevator(availableElevatorIndex, floor);
-    } else {
-      const nextRequest = unassignedCalls.length === 0 ? null : unassignedCalls.shift();
-      if (nextRequest !== null) {
-        const nextElevatorIndex = findClosestAvailableElevator(nextRequest);
-        if (nextElevatorIndex !== null) {
-          setElevatorData((prevData) => {
-            const newData = [...prevData];
-            newData[nextElevatorIndex].requests.push({ elevator: nextElevatorIndex, floor: nextRequest });
-            return newData;
-          });
-          moveElevator(nextElevatorIndex, nextRequest);
-        } else {
-          setUnassignedCalls((prevUnassignedCalls) => [...prevUnassignedCalls, floor]);
-        }
-      } else {
-        setUnassignedCalls((prevUnassignedCalls) => [...prevUnassignedCalls, floor]);
-      }
-    }
+    // Add the call to the queue
+    setUnassignedCalls((prevUnassignedCalls) => [...prevUnassignedCalls, floor]);
   };
 
-
+  useEffect(() => {
+    if (
+      unassignedCalls.length > 0 &&
+      !elevatorData.some((elevator) => elevator.state === "moving")
+    ) {
+      const processNextCall = () => {
+        const floor = unassignedCalls[0]; // Get the first call from the queue
+        const availableElevatorIndex = findClosestAvailableElevator(floor);
+  
+        if (availableElevatorIndex !== null) {
+          setElevatorData((prevData) => {
+            const newData = [...prevData];
+            newData[availableElevatorIndex].requests.push({
+              elevator: availableElevatorIndex,
+              floor,
+            });
+            return newData;
+          });
+          moveElevator(availableElevatorIndex, floor);
+  
+          // Remove the call from the queue
+          setUnassignedCalls((prevUnassignedCalls) => prevUnassignedCalls.slice(1));
+        }
+      };
+  
+      // Add a 2-second delay before processing the next call
+      const timeoutId = setTimeout(processNextCall, 2000);
+  
+      // Clean up the timeout when the component is unmounted or the dependencies change
+      return () => clearTimeout(timeoutId);
+    }
+  }, [unassignedCalls, elevatorData]);
+  
 
 
   const onButtonStateChange = (floor, newState) => {
