@@ -2,14 +2,22 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/styles.css';
 
-export const CallButton = ({ floor, onCallClick, elevatorPositions,elevatorDestinations }) => {
+export const CallButton = ({ floor, onCallClick, elevatorData }) => {
   const [buttonState, setButtonState] = useState('idle');
 
+  const elevatorPositions = elevatorData.map((elevator) => elevator.position);
+  const elevatorDestinations = elevatorData.map((elevator) => elevator.destination);
+
   useEffect(() => {
-    if (elevatorDestinations.some((destination) => destination === floor)) {
+    const isElevatorArrived = elevatorDestinations.some((destination) => destination === floor);
+    const isElevatorLeaving = elevatorPositions.every((position) => position !== floor);
+
+    if (isElevatorArrived) {
       setButtonState('arrived');
+    } else if (isElevatorLeaving && buttonState === 'arrived') {
+      setButtonState('idle');
     }
-  }, [elevatorDestinations, floor]);
+  }, [elevatorDestinations, elevatorPositions, floor, buttonState]);
 
   const handleClick = () => {
     if (buttonState === 'idle') {
