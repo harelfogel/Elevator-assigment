@@ -1,15 +1,10 @@
+import { generateFloorLabels } from "../utils/utils";
+const numberOfFloors = 10;  //Custom number of Floors
+const numberOfElevators = 5; // Custom numebr of Elevators
+
 export const buildingData = {
-  floors: [
-    'Ground Floor',
-    '1st',
-    '2nd',
-    '3rd',
-    '4th',
-    '5th',
-    '6th',
-    '7th',
-    '8th',
-    '9th',
-  ],
-  elevators: 5,
+  floors: generateFloorLabels(numberOfFloors),
+  elevators: numberOfElevators,
 };
+
+buildingData.lastIndex = buildingData.floors.length - 1;

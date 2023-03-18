@@ -9,7 +9,7 @@ import '../styles/styles.css';
 const arrivalAudio = new Audio(arrivalSound);
 
 export const Building = () => {
-  const { floors, elevators } = buildingData;
+  const { floors, elevators} = buildingData;
 
   const [buttonStates, setButtonStates] = useState(Array(floors.length).fill('idle'));
   const [elevatorPositions, setElevatorPositions] = useState(
@@ -18,8 +18,9 @@ export const Building = () => {
   const [elevatorRequests, setElevatorRequests] = useState(Array.from({ length: elevators }, () => []));
   const [elevatorDestinations, setElevatorDestinations] = useState(Array.from({ length: elevators }, () => null));
   const [unassignedCalls, setUnassignedCalls] = useState([]);
-  const [elevatorTimeTaken, setElevatorTimeTaken] = useState(Array.from({ length: elevators }, () => 0));
-  const [elevatorStates, setElevatorStates] = useState(Array.from({ length: elevators }, () => 'idle')); // New state for elevator states
+  const [timeTaken, setTimeTaken] = useState(
+    Array.from({ length: elevators }, () => Array(floors.length).fill(0))
+  ); const [elevatorStates, setElevatorStates] = useState(Array.from({ length: elevators }, () => 'idle')); // New state for elevator states
 
 
 
@@ -78,11 +79,7 @@ export const Building = () => {
 
 
           const timeTaken = calculateTimeTaken(startTime, endTime);
-          setElevatorTimeTaken((prevTimeTaken) => {
-            const newTimeTaken = [...prevTimeTaken];
-            newTimeTaken[elevator] = timeTaken.toFixed(2);
-            return newTimeTaken;
-          });
+
           console.log(
             `Time taken for elevator ${elevator} to reach floor ${targetFloor}: ${timeTaken.toFixed(
               2
@@ -90,7 +87,11 @@ export const Building = () => {
           );
 
           onButtonStateChange(targetFloor, 'arrived');
-
+          setTimeTaken((prevTimeTaken) => {
+            const newTimeTaken = [...prevTimeTaken];
+            newTimeTaken[elevator][targetFloor] = timeTaken.toFixed(2);
+            return newTimeTaken;
+          });
           setElevatorRequests((prevRequests) =>
             prevRequests.filter((request) => request.elevator !== elevator)
           );
@@ -177,16 +178,16 @@ export const Building = () => {
       <div className="building">
         {floors.map((_, floor) => (
           <Floor
-            key={floor}
-            floor={floor}
-            elevators={elevators}
-            elevatorPositions={elevatorPositions}
-            elevatorRequests={elevatorRequests}
-            buttonStates={buttonStates}
-            elevatorTimeTaken={elevatorTimeTaken}
-
-
-          />
+          key={floor}
+          floor={floor}
+          elevators={elevators}
+          elevatorPositions={elevatorPositions}
+          elevatorRequests={elevatorRequests}
+          buttonStates={buttonStates}
+          elevatorTimeTaken={timeTaken}
+          elevatorDestinations={elevatorDestinations}
+        />
+        
         ))}
       </div>
       <div className="call-buttons">
