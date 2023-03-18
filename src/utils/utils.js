@@ -1,10 +1,10 @@
 export const formatTime = (time) => {
-  const minutes = Math.floor(time / 60);
-  const seconds = time % 60;
+  if (time === null || time === undefined) {
+    return 'lili';
+  }
 
-  return minutes > 0 ? `${minutes}min ${seconds.toFixed(2)} sec` : `${seconds.toFixed(2)} sec`;
+  return `${time}sec`;
 };
-
 
 export const generateFloorLabels = (numFloors) => {
   const floorLabels = ['Ground Floor'];

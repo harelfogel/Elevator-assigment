@@ -9,146 +9,155 @@ import '../styles/styles.css';
 const arrivalAudio = new Audio(arrivalSound);
 
 export const Building = () => {
-  const { floors, elevators} = buildingData;
-
+  const { floors, elevators, lastIndex } = buildingData;
   const [buttonStates, setButtonStates] = useState(Array(floors.length).fill('idle'));
-  const [elevatorPositions, setElevatorPositions] = useState(
-    Array.from({ length: elevators }, () => 0)
-  );
-  const [elevatorRequests, setElevatorRequests] = useState(Array.from({ length: elevators }, () => []));
-  const [elevatorDestinations, setElevatorDestinations] = useState(Array.from({ length: elevators }, () => null));
   const [unassignedCalls, setUnassignedCalls] = useState([]);
-  const [timeTaken, setTimeTaken] = useState(
-    Array.from({ length: elevators }, () => Array(floors.length).fill(0))
-  ); const [elevatorStates, setElevatorStates] = useState(Array.from({ length: elevators }, () => 'idle')); // New state for elevator states
-
-
-
+  const [elevatorData, setElevatorData] = useState(
+    Array.from({ length: elevators }, () => ({
+      position: 0,
+      requests: [],
+      destination: null,
+      timeTaken: Array(floors.length).fill(null),
+    }))
+  );
 
 
   const findClosestAvailableElevator = (floor) => {
     let minDistance = Infinity;
     let closestElevator = null;
 
-    elevatorPositions.forEach((elevatorPosition, index) => {
-      const distance = Math.abs(floor - elevatorPosition);
+    elevatorData.forEach((elevator, index) => {
+      const distance = Math.abs(floor - elevator.position);
 
-      // Check if the elevator is occupied and moving in the right direction
-      const isOccupiedAndMovingUp = elevatorRequests.some(
-        (req) => req.elevator === index && req.floor > elevatorPosition
+      const isOccupiedAndMovingUp = elevator.requests.some(
+        (req) => req.floor > elevator.position
       );
 
       if (
         distance < minDistance &&
-        (!elevatorRequests.some((req) => req.elevator === index) || isOccupiedAndMovingUp)
+        (!elevator.requests.length || isOccupiedAndMovingUp)
       ) {
         minDistance = distance;
         closestElevator = index;
       }
     });
+
     console.log(`The closest elevator is: ${closestElevator}`);
     return closestElevator;
   };
+
 
   // Function to calculate the time taken
   const calculateTimeTaken = (startTime, endTime) => {
     return (endTime - startTime) / 1000;
   };
 
-  const moveElevator = (elevator, targetFloor) => {
-    const targetPosition = targetFloor;
+  const moveElevatorSmoothly = (elevatorIndex, targetFloor, stepDuration) => {
+    const currentPosition = elevatorData[elevatorIndex].position;
+    const newPosition = currentPosition + (targetFloor > currentPosition ? 1 : -1);
 
-    const startTime = performance.now();
-
-    setElevatorStates((prevStates) => {
-      const newStates = [...prevStates];
-      newStates[elevator] = 'moving';
-      return newStates;
-    });
-
-    const intervalId = setInterval(() => {
-      setElevatorPositions((prevPositions) => {
-        const currentPosition = prevPositions[elevator];
-
-        if (currentPosition === targetPosition) {
-          arrivalAudio.play();
-
-          clearInterval(intervalId);
-          const endTime = performance.now();
-          const estimatedTime = Math.abs(targetFloor - elevatorPositions[elevator]) * 1000;
-
-
-          const timeTaken = calculateTimeTaken(startTime, endTime);
-
-          console.log(
-            `Time taken for elevator ${elevator} to reach floor ${targetFloor}: ${timeTaken.toFixed(
-              2
-            )}s`
-          );
-
-          onButtonStateChange(targetFloor, 'arrived');
-          setTimeTaken((prevTimeTaken) => {
-            const newTimeTaken = [...prevTimeTaken];
-            newTimeTaken[elevator][targetFloor] = timeTaken.toFixed(2);
-            return newTimeTaken;
-          });
-          setElevatorRequests((prevRequests) =>
-            prevRequests.filter((request) => request.elevator !== elevator)
-          );
-
-          setElevatorDestinations((prevDestinations) => {
-            const newDestinations = [...prevDestinations];
-            newDestinations[elevator] = targetFloor;
-            return newDestinations;
-          });
-
-          // Add a delay of 2 seconds before changing the button state to 'idle'
-          setTimeout(() => {
-            onButtonStateChange(targetFloor, 'idle');
-            setElevatorStates((prevStates) => {
-              const newStates = [...prevStates];
-              newStates[elevator] = 'idle';
-              return newStates;
-            });
-          }, 2000);
-
-          // Process the next request if available
-          setTimeout(() => {
-            const nextRequest = elevatorRequests.find(
-              (request) => request.elevator === elevator
-            );
-            if (nextRequest) {
-              moveElevator(elevator, nextRequest.floor);
-            }
-          }, 2000);
-
-          return prevPositions;
-        }
-
-        const newPosition =
-          currentPosition + (targetPosition > currentPosition ? 1 : -1);
-        const newPositions = [...prevPositions];
-        newPositions[elevator] = newPosition;
-
-        return newPositions;
+    if (currentPosition === targetFloor) {
+      return;
+    } else {
+      setElevatorData((prevData) => {
+        const newData = [...prevData];
+        newData[elevatorIndex].position = newPosition;
+        return newData;
       });
-    }, 1000);
+    }
+
+    setTimeout(() => {
+      moveElevatorSmoothly(elevatorIndex, targetFloor, stepDuration);
+    }, stepDuration);
   };
 
 
-  const callElevator = (floor) => {
-    const availableElevator = findClosestAvailableElevator(floor);
+  const moveElevator = (elevatorIndex, targetFloor) => {
+    const startTime = performance.now();
 
-    if (availableElevator !== null) {
-      setElevatorRequests((prevRequests) => [...prevRequests, { elevator: availableElevator, floor }]);
-      moveElevator(availableElevator, floor);
+    setElevatorData((prevData) => {
+      const newData = [...prevData];
+      newData[elevatorIndex].state = 'moving';
+      return newData;
+    });
+
+    const stepDuration = 1000;
+
+    setTimeout(() => {
+      moveElevatorSmoothly(elevatorIndex, targetFloor, stepDuration);
+    }, stepDuration);
+
+    setTimeout(() => {
+      arrivalAudio.play();
+      const endTime = performance.now();
+      const timeTaken = calculateTimeTaken(startTime, endTime);
+
+      console.log(
+        `Time taken for elevator ${elevatorIndex} to reach floor ${targetFloor}: ${timeTaken.toFixed(
+          2
+        )}s`
+      );
+
+      onButtonStateChange(targetFloor, 'arrived');
+      setElevatorData((prevData) => {
+        const newData = [...prevData];
+        newData[elevatorIndex].timeTaken[targetFloor] = timeTaken.toFixed(2);
+        newData[elevatorIndex].requests = newData[elevatorIndex].requests.filter(
+          (request) => request.elevator !== elevatorIndex
+        );
+        newData[elevatorIndex].destination = targetFloor;
+        newData[elevatorIndex].state = 'idle';
+        return newData;
+      });
+
+
+      setTimeout(() => {
+        setElevatorData((prevData) => {
+          const newData = [...prevData];
+          newData[elevatorIndex].state = 'idle';
+          setElevatorData(newData);
+
+          onButtonStateChange(targetFloor, 'idle');
+
+          setTimeout(() => {
+            const newRequest = newData[elevatorIndex].requests.find(
+              (request) => request.elevator === elevatorIndex
+            );
+            if (newRequest) {
+              moveElevator(elevatorIndex, newRequest.floor);
+            }
+          }, 2000);
+          return newData;
+        });
+      }, 2000);
+    }, Math.abs(targetFloor - elevatorData[elevatorIndex].position) * stepDuration + stepDuration);
+  };
+
+
+
+
+
+  const callElevator = (floor) => {
+    const availableElevatorIndex = findClosestAvailableElevator(floor);
+
+    if (availableElevatorIndex !== null) {
+      setElevatorData((prevData) => {
+        const newData = [...prevData];
+        newData[availableElevatorIndex].requests.push({ elevator: availableElevatorIndex, floor });
+        return newData;
+      });
+      moveElevator(availableElevatorIndex, floor);
     } else {
       const nextRequest = unassignedCalls.length === 0 ? null : unassignedCalls.shift();
       if (nextRequest !== null) {
-        const nextElevator = findClosestAvailableElevator(nextRequest);
-        if (nextElevator !== null) {
-          setElevatorRequests((prevRequests) => [...prevRequests, { elevator: nextElevator, floor: nextRequest }]);
-          moveElevator(nextElevator, nextRequest);
+        const nextElevatorIndex = findClosestAvailableElevator(nextRequest);
+        if (nextElevatorIndex !== null) {
+          setElevatorData((prevData) => {
+            const newData = [...prevData];
+            newData[nextElevatorIndex].requests.push({ elevator: nextElevatorIndex, floor: nextRequest });
+            return newData;
+          });
+          moveElevator(nextElevatorIndex, nextRequest);
         } else {
           setUnassignedCalls((prevUnassignedCalls) => [...prevUnassignedCalls, floor]);
         }
@@ -160,6 +169,7 @@ export const Building = () => {
 
 
 
+
   const onButtonStateChange = (floor, newState) => {
     setButtonStates((prevStates) => {
       const newStates = [...prevStates];
@@ -167,6 +177,7 @@ export const Building = () => {
       return newStates;
     });
   };
+
 
   return (
     <div className="building-wrapper">
@@ -178,22 +189,25 @@ export const Building = () => {
       <div className="building">
         {floors.map((_, floor) => (
           <Floor
-          key={floor}
-          floor={floor}
-          elevators={elevators}
-          elevatorPositions={elevatorPositions}
-          elevatorRequests={elevatorRequests}
-          buttonStates={buttonStates}
-          elevatorTimeTaken={timeTaken}
-          elevatorDestinations={elevatorDestinations}
-        />
-        
+            key={floor}
+            floor={floor}
+            elevators={elevators}
+            elevatorData={elevatorData}
+            buttonStates={buttonStates}
+            elevatorIndex={elevatorData.findIndex(
+              (elevator) => lastIndex - floor === elevator.position
+            )}
+          />
         ))}
       </div>
       <div className="call-buttons">
         {floors.map((_, floor) => (
-          <CallButton key={floor} floor={floor} onCallClick={callElevator} elevatorPositions={elevatorPositions} elevatorDestinations={elevatorDestinations}
-            buttonState={buttonStates[floor]} onButtonStateChange={(newState) => onButtonStateChange(floor, newState)} />
+          <CallButton
+            key={floor}
+            floor={floor}
+            onCallClick={callElevator}
+            elevatorData={elevatorData}
+          />
         ))}
       </div>
     </div>

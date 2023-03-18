@@ -2,8 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/styles.css';
 
-export const CallButton = ({ floor, onCallClick, elevatorPositions, elevatorDestinations }) => {
+export const CallButton = ({ floor, onCallClick, elevatorData }) => {
   const [buttonState, setButtonState] = useState('idle');
+
+  const elevatorPositions = elevatorData.map((elevator) => elevator.position);
+  const elevatorDestinations = elevatorData.map((elevator) => elevator.destination);
 
   useEffect(() => {
     const isElevatorArrived = elevatorDestinations.some((destination) => destination === floor);
