@@ -11,9 +11,6 @@ import { buildingData } from '../data/buildingData';
 const { lastIndex } = buildingData;
 export const Floor = ({ floor, elevators, elevatorData, buttonStates, elevatorIndex }) => {
   useEffect(() => {
-    // console.log({ floor });
-    // console.log('elevatorData prop updated:', elevatorData[floor]);
-    // console.log(elevators);
   }, [elevatorData, floor, elevators]);
 
   const isElevatorOccupied = (elevator) => {
@@ -24,13 +21,7 @@ export const Floor = ({ floor, elevators, elevatorData, buttonStates, elevatorIn
     const request = elevatorData[elevator].requests.find(
       (req) => lastIndex - floor === req.floor
     );
-
-    //console.log(request);
     const isDestination = request !== undefined;
-    // console.log(
-    //   `Elevator: ${elevator}, Floor: ${floor}, isDestination: ${isDestination}`
-    // );
-    //console.log(isDestination)
     return isDestination;
   };
 
